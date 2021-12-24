@@ -46,6 +46,7 @@ data Puzzle = Puzzle String [Maybe Char] [Char]
 
 turnToNothing word = fmap Nothing word
 
+-- initialize game state
 freshPuzzle :: String -> Puzzle
 freshPuzzle word = Puzzle word (turnToNothing word) []
 
@@ -58,6 +59,8 @@ alreadyGuessed (Puzzle _ _ chars) c = elem c chars
 renderPuzzleChar Nothing = '_'
 renderPuzzleChar (Just c) = c
 
+
+-- Limitations 
 fillInCharacter :: Puzzle -> Char -> Puzzle
 fillInCharacter (Puzzle word curr g) c =
   Puzzle word newCurr (c:g)
@@ -76,8 +79,8 @@ handleGuess puzzle guess = do
     (False, _) -> putStrLn "This char is invalid"
                   pure (fillInCharacter puzzle guess)
 
-gameOver puzzle guess =
-  if (length guessed ) > 6 then 
+gameOver (Puzle word curr g) guess =
+  if (length g ) > 6 then 
     do
     putStrLn "Game over you loose"
     putStrLn "The word was " ++ word
@@ -87,9 +90,10 @@ gameOver puzzle guess =
 
 
 gameWin (Puzzle word curr g) = 
-  if all isJust curr then
-    do putStrLn "you win"
-    exitSucess
+  if (all isJust curr) then
+    do 
+      putStrLn "you win"
+      exitSucess
   else
     return ()
 
@@ -97,18 +101,16 @@ runGame puzzle = forever do
   gameOver puzzle
   gameWin puzzle
 
-
-
-
-
-
-
-
-
-
-
+  putStrLn "Current puzzle is " ++ show puzzle
+  putStrLn "Guess a letter"
+  guess <- getLine
+  case guess of
+    [c] -> handleGuess puzzle c >>= runGame 
+    _ -> putStrLn "Your guess must be a single character"
 
 
 main :: IO ()
 main = do
-  putStrLn "hello world"
+  word <- getLine
+  let puzzle = freshPuzzle (fmap toLower word)
+  runGame $ (freshPuzzleko)
